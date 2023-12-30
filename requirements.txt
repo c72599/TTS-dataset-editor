@@ -1,0 +1,8 @@
+librosa
+numpy
+pandas
+pydub
+matplotlib
+notebook
+ipywidgets
+tqdm
