@@ -23,7 +23,7 @@ def audio_preprocess(audio_segment, hparams):
     audio_segment = match_target_amplitude(audio_segment, -20.0)
     # Set framerate
     audio_segment = audio_segment.set_frame_rate(hparams["sampling_rate"])
-    # Mono
+    # Mono channel only
     audio_segment = audio_segment.set_channels(1)
     return audio_segment
 

@@ -3,8 +3,8 @@ import pandas as pd
 import ipywidgets as widgets
 from pydub import AudioSegment
 
-from preprocess.dataset import read_dataset
-from preprocess.audio import audio_preprocess, log_melspectrogram, melspec_hparams
+from editor_function.dataset import read_dataset
+from editor_function.audio import audio_preprocess, log_melspectrogram, melspec_hparams
 
 
 class DatasetEditor():
@@ -14,11 +14,12 @@ class DatasetEditor():
         self.plt = plt
 
         # dataset variable
-        self.paths = None
+        self.file_names = None
+        self.indexes = None
+        self.whisper_results = None
         self.segments = None
-        self.whisper_res = None
         self.transcripts = None
-        self.types = None
+        self.availables = None
 
         # ui variable
         self.index = None
@@ -48,12 +49,13 @@ class DatasetEditor():
     def load_dataset(self, dataset_path):
         self.dataset_path = dataset_path
 
-        paths, segments, whisper_res, transcripts, types = read_dataset(dataset_path)
-        self.paths = paths
+        file_names, indexes, whisper_results, segments, transcripts, availables = read_dataset(dataset_path)
+        self.file_names = file_names
+        self.indexes = indexes
+        self.whisper_results = whisper_results
         self.segments = segments
-        self.whisper_res = whisper_res
         self.transcripts = transcripts
-        self.types = types
+        self.availables = availables
 
     def set_index(self, index):
         self.index = index
@@ -62,15 +64,15 @@ class DatasetEditor():
         # clear display
         self.ipd.clear_output()
 
-        print(f"原檔名稱：{self.paths[self.index][0]}")
-        print(f"音檔編號：{self.index}，音檔狀態：{self.types[self.index][0]}")
+        print(f"原檔名稱：{self.file_names[self.index][0]}/{self.indexes[self.index][0]}.mp3")
+        print(f"音檔編號：{self.index}，音檔狀態：{self.availables[self.index][0]}")
 
         # display melspec
-        if self.types[self.index][0]:
+        if self.availables[self.index][0]:
             # change the audio => reload audio
             if change_wav:
                 self.layout_segments_group = []
-                audio_path = os.path.join(self.dataset_path, self.paths[self.index][0])
+                audio_path = os.path.join(self.dataset_path, self.file_names[self.index][0], f"{self.indexes[self.index][0]}.mp3")
                 self.audio = self.ipd.Audio(audio_path)
 
                 audio_segment = AudioSegment.from_mp3(audio_path)
@@ -101,7 +103,7 @@ class DatasetEditor():
     def add_segment(self, start=0, end=0, transcript=None):
         # text transcript
         if not transcript:
-            transcript = self.whisper_res[self.index][0]
+            transcript = self.whisper_results[self.index][0]
         textbox = widgets.Text(value=transcript, description='文字', layout=widgets.Layout(width='80%'))
         # slider start
         slider_start = widgets.IntSlider(value=start, description="起始", max=self.melspec.shape[1] - 1)
@@ -162,30 +164,31 @@ class DatasetEditor():
         self.save_segment()
         if self.index > 0:
             self.index -= 1
-        while self.index > 0 and not self.types[self.index][0]:
+        while self.index > 0 and not self.availables[self.index][0]:
             self.index -= 1
         self.refresh_display(change_wav=True)
 
     def next_wav(self, button):
         self.save_segment()
-        if self.index < len(self.types) - 1:
+        if self.index < len(self.availables) - 1:
             self.index += 1
-        while self.index < len(self.types) - 1 and not self.types[self.index][0]:
+        while self.index < len(self.availables) - 1 and not self.availables[self.index][0]:
             self.index += 1
         self.refresh_display(change_wav=True)
 
     def del_audio(self, button):
-        self.types[self.index][0] = not self.types[self.index][0]
+        self.availables[self.index][0] = not self.availables[self.index][0]
         self.refresh_display(change_wav=True)
 
     def save_csv(self, button):
         self.save_segment()
         dataframe = pd.DataFrame({
-            "Path": self.paths,
+            "FileName": self.file_names,
+            "Index": self.indexes,
+            "WhisperResult": self.whisper_results,
             "Segments": self.segments,
-            "Whisper_res": self.whisper_res,
             "Transcripts": self.transcripts,
-            "Type": self.types
+            "Availables": self.availables
         })
-        dataframe.to_csv(os.path.join(self.dataset_path, "processed_transcript.csv"), index_label="Index", encoding="utf-8")
+        dataframe.to_csv(os.path.join(self.dataset_path, "dataset_contents.csv"), index_label="Index", encoding="utf-8")
 
