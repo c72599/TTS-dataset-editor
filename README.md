@@ -32,10 +32,8 @@ TTS資料集編輯的程式，處理自己蒐集的聲音資料集
 &emsp;&emsp; ├─ 音檔 A.wav <br>
 &emsp;&emsp; ├─ 音檔 B.wav <br>
 &emsp;&emsp; ├─ 音檔 C.wav <br>
+
 ---
-
-
-
 ### _**/ audio_preprocess_script / 03_whisper_v3.py**_ <br>
 利用 **openai/whisper-large-v3** 將音檔進行語音文字辨識 <br>
 
