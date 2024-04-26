@@ -184,7 +184,7 @@ class DatasetEditor():
         self.save_segment()
         dataframe = pd.DataFrame({
             "FileName": self.file_names,
-            "Index": self.indexes,
+            "VadIndex": self.indexes,
             "WhisperResult": self.whisper_results,
             "Segments": self.segments,
             "Transcripts": self.transcripts,
