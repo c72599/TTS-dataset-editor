@@ -36,7 +36,7 @@ def preprocess_dataset(single_ori_data):
     detect_start = max(trim_head - 10, 0)
     detect_end = min(melspec.shape[1] - trim_tail + 10, melspec.shape[1])
 
-    return [[file_name], [vad_index], [[detect_start, detect_end]], [transcript], [True]]
+    return [[file_name], [vad_index], [[detect_start, detect_end]], [transcript], ["華語"], ["TTS/ASR"]]
 
 
 def read_dataset(dataset_path):
@@ -52,13 +52,14 @@ def read_dataset(dataset_path):
         with Pool(6) as p:
             preprocess_data = p.map(preprocess_dataset, ori_data)
 
-        file_names, vad_indexes, segments, transcripts, availables = [], [], [], [], []
-        for file_name, vad_index, segment, transcript, available in sorted(preprocess_data):
+        file_names, vad_indexes, segments, transcripts, languages, tasks = [], [], [], [], [], []
+        for file_name, vad_index, segment, transcript, language, task in sorted(preprocess_data):
             file_names.append(file_name)
             vad_indexes.append(vad_index)
             segments.append(segment)
             transcripts.append(transcript)
-            availables.append(available)
+            languages.append(language)
+            tasks.append(task)
 
         dataframe = pd.DataFrame({
             "FileName": file_names,
@@ -66,16 +67,13 @@ def read_dataset(dataset_path):
             "WhisperResult": transcripts,
             "Segments": segments,
             "Transcripts": transcripts,
-            "Availables": availables
+            "Languages": languages,
+            "Tasks": tasks
         })
         dataframe.to_csv(csv_path, index_label="Index", encoding="utf-8")
 
     dataframe = pd.read_csv(csv_path, encoding="utf-8")
-    file_names = [eval(file_name) for file_name in dataframe["FileName"]]
-    vad_indexes = [eval(index) for index in dataframe["VadIndex"]]
-    whisper_results = [eval(whisper_result) for whisper_result in dataframe["WhisperResult"]]
-    segments = [eval(segment) for segment in dataframe["Segments"]]
-    transcripts = [eval(transcript) for transcript in dataframe["Transcripts"]]
-    availables = [eval(available) for available in dataframe["Availables"]]
+    dataframe = dataframe.drop(columns=["Index"])
+    dataset = {df_key: [eval(df_val) for df_val in dataframe[df_key]] for df_key in dataframe}
 
-    return file_names, vad_indexes, whisper_results, segments, transcripts, availables
+    return dataset
