@@ -2,6 +2,7 @@ import os
 import re
 import argparse
 import tqdm
+import torch
 
 from zhpr.predict import DocumentDataset, merge_stride, decode_pred
 from transformers import AutoModelForTokenClassification, AutoTokenizer

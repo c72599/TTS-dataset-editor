@@ -73,6 +73,28 @@ TTS資料集編輯的程式，處理自己蒐集的聲音資料集
 &emsp;&emsp; └─ whisper_reasult.txt
 
 ---
+### _**/ audio_preprocess_script / 05_clip_audio.py**_ <br>
+將 Dataset Editor 標註後的資料集的語音裁切並存檔 <br>
+
+* 輸入參數 dataset_root： Dataset Editor 標註後的資料集目錄<br>
+* 輸入參數 task： 需要裁切存檔的音檔類別<br>
+
+資料集目錄 <br>
+&emsp;&emsp; ├─ 音檔 A <br>
+&emsp;&emsp; │&emsp;&emsp; ├─ 片段 A.mp3 <br>
+&emsp;&emsp; │&emsp;&emsp; ├─ 片段 B.mp3 <br>
+&emsp;&emsp; │&emsp;&emsp; ├─ 片段 C.mp3 <br>
+&emsp;&emsp; │ <br>
+&emsp;&emsp; ├─ 音檔 B <br>
+&emsp;&emsp; │&emsp;&emsp; ├─ 片段 D.mp3 <br>
+&emsp;&emsp; │&emsp;&emsp; ├─ 片段 E.mp3 <br>
+&emsp;&emsp; │&emsp;&emsp; ├─ 片段 F.mp3 <br>
+&emsp;&emsp; │ <br>
+&emsp;&emsp; ├─ vad_reasult.txt <br>
+&emsp;&emsp; ├─ whisper_reasult.txt <br>
+&emsp;&emsp; └─ dataset_contents.csv
+
+---
 ## Editor UI
 基於Jupyter notebook的資料集編輯介面
 

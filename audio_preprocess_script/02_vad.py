@@ -1,4 +1,5 @@
 import os
+import glob
 import argparse
 import torch
 import torchaudio
@@ -37,6 +38,7 @@ if __name__ == '__main__':
 
     # Initialization
     dataset_root = args.dataset_root
+    glob_result = glob.glob(f"{dataset_root}/*")
     save_root = f"{dataset_root}_vad"
     vad_result_path = os.path.join(save_root, "vad_result.txt")
     os.makedirs(save_root, exist_ok=True)
@@ -53,14 +55,12 @@ if __name__ == '__main__':
 
     # Collect all audio file in dataset dir
     file_lists = []
-    for root, dirs, files in os.walk(dataset_root):
-        for file in files:
-            if file[-3:] != 'wav':
-                continue
-
-            audio_path = os.path.join(root, file)
-            file_name = file.split('_', 1)[1][:-13]
-            file_lists.append((file_name, audio_path))
+    for audio_path in glob_result:
+        if audio_path[-3:] != 'wav':
+            continue
+        audio_name = audio_path.split(os.sep)[-1]
+        audio_name = audio_name.split('_', 1)[1][:-13]
+        file_lists.append((audio_name, audio_path))
     file_lists.sort()
 
     # Start preprocess
